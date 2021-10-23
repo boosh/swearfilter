@@ -81,11 +81,15 @@ func TestCheckSimpleRegex(t *testing.T) {
 		"xthingx": true,
 		"xthat":   true,
 		"thatx":   false,
+		"abc":     true,
+		"xabc":    false,
+		"abcx":    false,
+		"xabcx":   false,
 		"ok":      false,
 	}
 
 	for _, spacedBypass := range []bool{true, false} {
-		filter := NewSwearFilter(false, "^fuck", "thing", "that$")
+		filter := NewSwearFilter(false, "^fuck", "thing", "that$", "^abc$")
 		filter.DisableSpacedBypass = spacedBypass
 
 		for test, expected := range tests {

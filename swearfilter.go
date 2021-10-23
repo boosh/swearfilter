@@ -138,16 +138,15 @@ func (filter *SwearFilter) scan(message string, swear string) bool {
 		if filter.DisableSimpleRegex {
 			return strings.Contains(message, swear)
 		} else {
-			hasSimplePrefix := false
-			if string(swear[0]) == "^" {
-				hasSimplePrefix = true
-				return strings.HasPrefix(message, swear[1:])
-			}
-
-			hasSimpleSuffix := false
 			strLen := len(swear)
-			if string(swear[strLen-1]) == "$" {
-				hasSimpleSuffix = true
+			hasSimplePrefix := string(swear[0]) == "^"
+			hasSimpleSuffix := string(swear[strLen-1]) == "$"
+
+			if hasSimplePrefix && hasSimpleSuffix {
+				return message == swear[1:strLen-1]
+			} else if hasSimplePrefix {
+				return strings.HasPrefix(message, swear[1:])
+			} else if hasSimpleSuffix {
 				return strings.HasSuffix(message, swear[:strLen-1])
 			}
 
