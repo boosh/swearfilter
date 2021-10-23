@@ -32,6 +32,7 @@ func NewSwearFilter(enableFullRegex bool, uhohwords ...string) (filter *SwearFil
 	filter = &SwearFilter{
 		EnableFullRegex: enableFullRegex,
 		BadWords:        make(map[string]struct{}),
+		BadWordRegexps:  make(map[string]*regexp.Regexp),
 	}
 
 	filter.Add(uhohwords...)
