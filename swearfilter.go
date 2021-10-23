@@ -17,7 +17,7 @@ type SwearFilter struct {
 	DisableSpacedTab                bool //Disables converting tabs to singular spaces (ex: [tab][tab] -> [space][space])
 	DisableMultiWhitespaceStripping bool //Disables stripping down multiple whitespaces (ex: hello[space][space]world -> hello[space]world)
 	DisableZeroWidthStripping       bool //Disables stripping zero-width spaces
-	EnableSpacedBypass              bool //Disables testing for spaced bypasses (if hell is in filter, look for occurrences of h and detect only alphabetic characters that follow; ex: h[space]e[space]l[space]l[space] -> hell)
+	DisableSpacedBypass             bool //Disables testing for spaced bypasses (if hell is in filter, look for occurrences of h and detect only alphabetic characters that follow; ex: h[space]e[space]l[space]l[space] -> hell)
 	DisableSimpleRegex              bool //Disables using strings.HasPrefix if the string starts with ^ and strings.HasSuffix if it ends with $. Only strings.Contains will be used
 	EnableFullRegex                 bool //Enables treating each word in the wordlist as a regex
 
@@ -28,11 +28,10 @@ type SwearFilter struct {
 }
 
 //NewSwearFilter returns an initialized SwearFilter struct to check messages against
-func NewSwearFilter(enableSpacedBypass bool, enableFullRegex bool, uhohwords ...string) (filter *SwearFilter) {
+func NewSwearFilter(enableFullRegex bool, uhohwords ...string) (filter *SwearFilter) {
 	filter = &SwearFilter{
-		EnableSpacedBypass: enableSpacedBypass,
-		EnableFullRegex:    enableFullRegex,
-		BadWords:           make(map[string]struct{}),
+		EnableFullRegex: enableFullRegex,
+		BadWords:        make(map[string]struct{}),
 	}
 
 	filter.Add(uhohwords...)
@@ -99,7 +98,7 @@ func (filter *SwearFilter) Check(msg string) (trippedWords []string, err error) 
 
 			if filter.scan(message, swear) {
 				trippedWords = append(trippedWords, swear)
-			} else if filter.EnableSpacedBypass {
+			} else if !filter.DisableSpacedBypass {
 				nospaceMessage := strings.Replace(message, " ", "", -1)
 				if filter.scan(nospaceMessage, swear) {
 					trippedWords = append(trippedWords, swear)
@@ -115,7 +114,7 @@ func (filter *SwearFilter) Check(msg string) (trippedWords []string, err error) 
 
 			if filter.scan(message, swear) {
 				trippedWords = append(trippedWords, swear)
-			} else if filter.EnableSpacedBypass {
+			} else if !filter.DisableSpacedBypass {
 				nospaceMessage := strings.Replace(message, " ", "", -1)
 				if filter.scan(nospaceMessage, swear) {
 					trippedWords = append(trippedWords, swear)

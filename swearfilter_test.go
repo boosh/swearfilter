@@ -7,7 +7,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	filter := NewSwearFilter(true, false, "fuck", "hell")
+	filter := NewSwearFilter(false, "fuck", "hell")
 	if filter.DisableNormalize {
 		t.Errorf("Filter option DisableNormalize was incorrect, got: %t, want: %t", filter.DisableNormalize, false)
 	}
@@ -20,8 +20,8 @@ func TestNew(t *testing.T) {
 	if filter.DisableZeroWidthStripping {
 		t.Errorf("Filter option DisableZeroWidthStripping was incorrect, got: %t, want: %t", filter.DisableZeroWidthStripping, false)
 	}
-	if !filter.EnableSpacedBypass {
-		t.Errorf("Filter option EnableSpacedBypass was incorrect, got: %t, want: %t", filter.EnableSpacedBypass, true)
+	if filter.DisableSpacedBypass {
+		t.Errorf("Filter option DisableSpacedBypass was incorrect, got: %t, want: %t", filter.DisableSpacedBypass, false)
 	}
 	if len(filter.BadWords) != 2 {
 		t.Errorf("Filter option BadWords was incorrect, got length: %d, want length: %d", len(filter.BadWords), 2)
@@ -35,7 +35,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestCheck(t *testing.T) {
-	filter := NewSwearFilter(true, false, "fuck")
+	filter := NewSwearFilter(false, "fuck")
 	messages := []string{"fucking", "fûçk", "asdf", "what the f u c k dude"}
 
 	for i := 0; i < len(messages); i++ {
@@ -62,7 +62,7 @@ func TestCheck(t *testing.T) {
 }
 
 func TestCheck2(t *testing.T) {
-	filter := NewSwearFilter(true, false, "fuck")
+	filter := NewSwearFilter(false, "fuck")
 	messages := []string{"FuCking", "fûçk", "asdf", "what the f u c k dude"}
 
 	for i := 0; i < len(messages); i++ {
@@ -85,8 +85,8 @@ func TestCheckSimpleRegex(t *testing.T) {
 	}
 
 	for _, spacedBypass := range []bool{true, false} {
-		filter := NewSwearFilter(true, false, "^fuck", "thing", "that$")
-		filter.EnableSpacedBypass = spacedBypass
+		filter := NewSwearFilter(false, "^fuck", "thing", "that$")
+		filter.DisableSpacedBypass = spacedBypass
 
 		for test, expected := range tests {
 			trippers, err := filter.Check(test)
@@ -110,9 +110,9 @@ func TestCheckSimpleRegexDisabled(t *testing.T) {
 	}
 
 	for _, spacedBypass := range []bool{true, false} {
-		filter := NewSwearFilter(true, false, "^fuck", "thing", "that$")
+		filter := NewSwearFilter(false, "^fuck", "thing", "that$")
 		filter.DisableSimpleRegex = true
-		filter.EnableSpacedBypass = spacedBypass
+		filter.DisableSpacedBypass = spacedBypass
 
 		for test, expected := range tests {
 			trippers, err := filter.Check(test)
@@ -139,8 +139,8 @@ func TestCheckFullRegex(t *testing.T) {
 	}
 
 	for _, spacedBypass := range []bool{true, false} {
-		filter := NewSwearFilter(true, true, "^fuck", "thing", "that$", "abc.$")
-		filter.EnableSpacedBypass = spacedBypass
+		filter := NewSwearFilter(true, "^fuck", "thing", "that$", "abc.$")
+		filter.DisableSpacedBypass = spacedBypass
 
 		for test, expected := range tests {
 			trippers, err := filter.Check(test)
