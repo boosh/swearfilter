@@ -1,4 +1,4 @@
-module github.com/capossele/swearfilter
+module github.com/boosh/swearfilter
 
 go 1.16
 
